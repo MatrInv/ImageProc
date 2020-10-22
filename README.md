@@ -1,24 +1,30 @@
-#ImageProc
+# ImageProc
 
 Image processor that performs DENOISING, EDGE DETECTION, IMAGE SEGMENTATION as well as MORPHOLOGICAL OPERATIONS using structuring elements such as dilatation, erosion, opening and closing.
 
 The program has been written with C++11 and OpenCV4.5 . So, be aware that the program may be not working with another versions of these two.
 
-To compile the main.cpp file, you must first configure the compilation with CMakeLists.txt :
+## Compilation
+
+To compile the main.cpp file, you must first configure the compilation with CMakeLists.txt.
 
 	cd <ImageProc directory>
 	cmake -DOpenCV_DIR=<opencv-root>/lib/cmake/opencv4 ./
 	make
 
-<opencv-root> is usually usr/local (in linux systems).
+\<opencv-root\> is usually usr/local (in linux systems).
 
-In order to run the executable :
+## Execution
 
-	chmod +x ImageProc
-	
+In order to run the executable, make the file executable.
+
+	chmod +x ImageProc #in linux
+
+And use this command :
+
 	ImageProc <path-to-an-image> <operation>
 
-<operation> is an number refering to an operation in the correlation table below :
+\<operation\> is a number referring to an operation in the correlation table below.
 
 	(1)   Dilatation
 	(2)   Erosion
@@ -36,8 +42,14 @@ In order to run the executable :
 6, 7, 8 are gradients used for edge detection.
 9, 10 are algorithmes used for image segmentation. The different regions are shown in different grayscales.
 
+
+
+By the way, at the end of the execution, the program asks you if you want to save the processed image in the current directory as "img_res.png". If you want so, press the S key, else press any other key.
+
+## Tests
+
 You can use the directory img_test to test these features.
-I would propose to you the examples below :
+I would propose to you the examples below.
 
 	#Denoising
 	ImageProc ./img_test/bottle_bruit.png 5
@@ -54,5 +66,3 @@ I would propose to you the examples below :
 	ImageProc ./img_test/lotus.png 10
 
 You can find the result of all the processed images in the zip archive "res.zip".
-
-By the way, at the end of the execution, the program asks you if you want to save the processed image in the current directory as "img_res.png". If you want so, press the S key, else press any other key.
