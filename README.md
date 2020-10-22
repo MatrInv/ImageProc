@@ -1,4 +1,5 @@
 #ImageProc
+
 Image processor that performs DENOISING, EDGE DETECTION, IMAGE SEGMENTATION as well as MORPHOLOGICAL OPERATIONS using structuring elements such as dilatation, erosion, opening and closing.
 
 The program has been written with C++11 and OpenCV4.5 . So, be aware that the program may be not working with another versions of these two.
