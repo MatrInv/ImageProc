@@ -16,11 +16,11 @@ To compile the main.cpp file, you must first configure the compilation with CMak
 
 ## Execution
 
-In order to run the executable, make the file executable.
+To run the executable, make the file executable.
 
 	chmod +x ImageProc #in linux
 
-And use this command :
+And then use this command :
 
 	ImageProc <path-to-an-image> <operation>
 
@@ -37,30 +37,28 @@ And use this command :
 	(9)   Regional minima segmentation
 	(10)  Watershed algorithm
 
-1, 2, 3, 4 are morphological operations used in all the other features of the program.
-5 is used to remove salt&pepper noise.
-6, 7, 8 are gradients used for edge detection.
+1, 2, 3, 4 are morphological operations used in all the other features of the program.  
+5 is used to remove salt&pepper noise.  
+6, 7, 8 are gradients used for edge detection.  
 9, 10 are algorithmes used for image segmentation. The different regions are shown in different grayscales.
-
-
 
 By the way, at the end of the execution, the program asks you if you want to save the processed image in the current directory as "img_res.png". If you want so, press the S key, else press any other key.
 
 ## Tests
 
-You can use the directory img_test to test these features.
+You can use the images of the directory "img_test" to test these features.  
 I would propose to you the examples below.
 
 	#Denoising
 	ImageProc ./img_test/bottle_bruit.png 5
 	ImageProc ./img_test/tree_bruit.png 5
 
-	#edge segmentation
+	#edge detection & segmentation with the regional minima
 	ImageProc ./img_test/tree.png 9
 	ImageProc ./img_test/daisy.png 9
 	ImageProc ./img_test/lotus.png 9
 
-	#image segmentation
+	#segmentation with the watershed cuts algorithm
 	ImageProc ./img_test/tree.png 10
 	ImageProc ./img_test/daisy.png 10
 	ImageProc ./img_test/lotus.png 10
