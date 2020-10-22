@@ -6,8 +6,6 @@
 using namespace cv;
 using namespace std;
 
-string window_name = "Original";
-
 bool inFrame(const Mat src,int y, int x){
   return (x>=0 && y>=0 && x<src.cols && y<src.rows);
 }
@@ -67,11 +65,13 @@ void erosion(const Mat src, Mat &dst, const Mat elt){
   
 }
 
+// opening = dilatation + erosion
 void ouverture(const Mat src, Mat &dst, const Mat elt) {
   dilatation(src, dst,elt);
   erosion(dst.clone(),dst,elt);
 }
 
+// closing = erosion + dilatation
 void fermeture(const Mat src, Mat &dst, const Mat elt) {
   erosion(src, dst,elt);
   dilatation(dst.clone(),dst,elt);
@@ -79,6 +79,7 @@ void fermeture(const Mat src, Mat &dst, const Mat elt) {
 
 //DENOISING
 
+// denoising = closing + opening
 void debruitage(const Mat src, Mat &dst, const Mat elt){
   fermeture(src,dst,elt);
   ouverture(dst.clone(),dst,elt);
@@ -87,16 +88,19 @@ void debruitage(const Mat src, Mat &dst, const Mat elt){
 
 //GRADIENTS
 
-void gradientInterne(const Mat src, Mat &dst, const Mat elt){
+// internal gradient = difference( erosion , identity )
+void gradientInterne(const Mat src, Mat &dst, const Mat elt){ // 
   erosion(src,dst,elt);
   dst=src-dst;
 }
 
+// external gradient = difference( dilatation , identity )
 void gradientExterne(const Mat src, Mat &dst, const Mat elt){
   dilatation(src,dst,elt);
   dst = dst-src;
 }
   
+// morphological gradient = difference( erosion , dilatation)
 void gradientMorphologique(const Mat src, Mat &dst, const Mat elt){
   Mat tmp(src.size(),CV_8UC1,Scalar(0));
   erosion(src,tmp,elt);
@@ -126,7 +130,7 @@ Mat minima(const Mat gradient){
 }
 
 
-//WATERSHED ALGORITHM
+//WATERSHED CUTS ALGORITHM : Minimal spanning tree
 
 void partageDesEaux(const Mat grad, Mat &dst){
 
@@ -159,7 +163,7 @@ void save(Mat I, string name){
     }
 }
   
-//EXECUTION
+//EXECUTION & DISPLAY
 
 int main( int argc, char** argv )
 {
@@ -210,93 +214,91 @@ int main( int argc, char** argv )
     eltStruct.at<uchar>(0,2)=0;
     eltStruct.at<uchar>(2,2)=0;
 
+    string oper_adj = "unknown";
+
     switch (choice)
     {
     case 1: //DILATATION
       {
+        oper_adj = "dilatated";
+        cout<<"DILATATION"<<endl;
         dilatation(image, res, eltStruct);
-        imshow( "DILATATION", res );
-        //save(res, "dilatation/"+imageName);
         break;
       }
     
     case 2: //EROSION
       {
+        oper_adj = "eroded";
+        cout<<"EROSION"<<endl;
         erosion(image, res, eltStruct);
-        imshow( "EROSION", res );
-        //save(res, "erosion/"+imageName);
         break;
       }
 
     case 3: //OUVERTURE
       {
+        oper_adj = "openening";
+        cout<<"OPENING"<<endl;
         ouverture(image, res, eltStruct);
-        imshow( "ouverture", res );
-        //save(res, "ouverture/"+imageName);
         break;
       }
     
     case 4: //FERMETURE
       {
+        oper_adj = "closing";
+        cout<<"CLOSING"<<endl;
         fermeture(image,res, eltStruct);
-        imshow( "CLOSING", res );
-        //save(res, "fermeture/"+imageName);
         break;
       }
     
     case 5: //DEBRUITAGE
       {
+        oper_adj = "denoised";
+        cout<<"DENOISING"<<endl;
         debruitage(image, res, eltStruct);
-        imshow( "DENOISING", res );
-        //save(res, "debruitage/"+imageName);
         break;
       }
 
     case 6: //GRADIENT INTERNE
       {
+        oper_adj = "internal gradient";
+        cout<<"INTERNAL GRADIENT"<<endl;
         gradientInterne(image,res,eltStruct);
-        imshow( "INTERNAL GRADIENT", res );
-        //save(res, "gradientInterne/"+imageName);
         break;
       }
     
     case 7: //GRADIENT EXTERNE
       {
+        oper_adj = "external gradient";
+        cout<<"EXTERNAL GRADIENT"<<endl;
         gradientExterne(image,res,eltStruct);
-        imshow( "EXTERNAL GRADIENT", res );
-        //save(res, "gradientExterne/"+imageName);
         break;
       }
 
     case 8: //GRADIENT MORPHOLOGIQUE
       {
+        oper_adj = "morphological gradient";
+        cout<<"MORPHOLOGICAL GRADIENT"<<endl;
         gradientMorphologique(image,res,eltStruct);
-        imshow( "MORPHOLOGICAL GRADIENT", res );
-        //save(res, "gradientMorphologique/"+imageName);
         break;
       }
 
     case 9: //MINIMA
       {
+        oper_adj = "regional minima";
+        cout<<"REGIONAL MINIMA"<<endl;
         vector<vector<Point>> markers;
         gradientMorphologique(image,res,eltStruct);
-        string win_minima = "REGIONAL MINIMA";
-        //namedWindow(win_minima, WINDOW_AUTOSIZE);
-        imshow(win_minima, minima(res));
-        //save(minima(res), "minima/"+imageName);
+        res = minima(res);
         break;
       }
 
     case 10: //PARTAGE DES EAUX
       {
-        Mat res2(image.size(),CV_8UC1,Scalar(0));
+        oper_adj = "watershed cuts";
+        cout<<"WATERSHED CUTS ALGORITHM"<<endl;
         Mat grad(image.size(),CV_8UC1,Scalar(0));
         gradientMorphologique(image,grad,eltStruct);
-        partageDesEaux(grad, res2);
-        string win_watershed = "WATERSHED ALGORITHM";
-        //namedWindow(win_watershed, WINDOW_AUTOSIZE);
-        imshow(win_watershed, res2);
-        //save(res2, "watershed/"+imageName);
+        partageDesEaux(grad, res);
         break;
       }
 
@@ -318,11 +320,27 @@ int main( int argc, char** argv )
 
     }
 
+    //Display the original image
+    string window_name = imageName;
     namedWindow( window_name, WINDOW_AUTOSIZE ); 	// Create a window for display.
     imshow( window_name, image );                	// Show our image inside it.
 
-    cout<<endl<<"Press a key to proceed..."<<endl;
-    waitKey(0); 									// Wait for the image to be displayed
+    //Display the processed one
+    string res_name = oper_adj+" image";
+    namedWindow( res_name, WINDOW_AUTOSIZE );
+    imshow(res_name, res);
+
+    //Proceed...
+    cout<<endl<<"Press S to SAVE the processed image in the current directory..."<<endl<<"or"<<endl<<"Press any other key to EXIT..."<<endl;
+    char k = waitKey(0); 									// Wait for the image to be displayed
+    if (k=='s' || k=='S'){
+      save(res, "res_img.png");
+      cout<<endl<<"Saved as \"res_img.png\" in the current directory."<<endl<<endl;
+    }else{
+      cout<<endl<<"Exit without saving."<<endl<<endl;
+    }
+
+    destroyAllWindows();
 
     return 0;
 }
